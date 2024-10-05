@@ -250,6 +250,7 @@ class CustomControlsState extends MusicBeatSubstate
 					remove(_pad);
 					_pad.alpha = 0;
 					_hb.visible = true;
+					_hb.screenCenter(X);
 
 			}
 	
