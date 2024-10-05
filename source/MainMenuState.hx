@@ -15,6 +15,7 @@ import flixel.util.FlxTimer;
 #if windows
 import Discord.DiscordClient;
 #end
+import ui.FlxVirtualPad;
 
 using StringTools;
 
@@ -39,6 +40,8 @@ class MainMenuState extends MusicBeatState {
 	var bg:FlxSprite;
 	var magenta:FlxSprite;
 	var camFollow:FlxObject;
+
+	var _pad:FlxVirtualPad;
 
 	public static var finishedFunnyMove:Bool = false;
 
@@ -119,6 +122,10 @@ class MainMenuState extends MusicBeatState {
 
 		changeItem();
 
+		_pad = new FlxVirtualPad(UP_DOWN, A);
+		_pad.alpha = 0.75;
+		this.add(_pad);
+
 		super.create();
 	}
 
@@ -130,15 +137,19 @@ class MainMenuState extends MusicBeatState {
 		}
 
 		if (!selectedSomethin) {
-			if (controls.UP_P) {
+			var UP_P = _pad.buttonUp.justPressed;
+			var DOWN_P = _pad.buttonDown.justPressed;
+			var ACCEPT = _pad.buttonA.justPressed;
+			
+			if (controls.UP_P || UP_P) {
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(-1);
 			}
-			if (controls.DOWN_P) {
+			if (controls.DOWN_P || DOWN_P) {
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(1);
 			}
-			if (controls.ACCEPT) {
+			if (controls.ACCEPT || ACCEPT) {
 				selectedSomethin = true;
 				FlxG.sound.play(Paths.sound('confirmMenu'));
 				FlxFlicker.flicker(magenta, 1.1, 0.15, false);
