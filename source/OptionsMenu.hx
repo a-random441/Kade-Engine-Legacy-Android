@@ -9,6 +9,8 @@ import flixel.FlxSprite;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
+import ui.FlxVirtualPad;
+import options.CustomControlsState;
 
 class OptionCata extends FlxSprite {
 	public var title:String;
@@ -84,6 +86,8 @@ class OptionsMenu extends MusicBeatState {
 
 	public var acceptInput:Bool = true;
 
+	var justTouched:Bool = false;
+
 	public static var visibleRange = [114, 640];
 
 	public function new() {
@@ -94,6 +98,8 @@ class OptionsMenu extends MusicBeatState {
 
 	public var descText:FlxText;
 	public var descBack:FlxSprite;
+
+	var _pad:FlxVirtualPad;
 
 	override function create() {
 		Paths.clearStoredMemory();
@@ -192,6 +198,10 @@ class OptionsMenu extends MusicBeatState {
 
 		selectedOption = selectedCat.options[0];
 
+		_pad = new FlxVirtualPad(FULL, A_B_C);
+		_pad.alpha = 0.75;
+		this.add(_pad);
+
 		super.create();
 	}
 
@@ -275,6 +285,10 @@ class OptionsMenu extends MusicBeatState {
 	override function update(elapsed:Float) {
 		super.update(elapsed);
 
+		for (touch in FlxG.touches.list)
+	if (touch.justPressed)
+		justTouched = true;
+
 		var gamepad:FlxGamepad = FlxG.gamepads.lastActive;
 
 		var accept = false;
@@ -284,14 +298,16 @@ class OptionsMenu extends MusicBeatState {
 		var down = false;
 		var any = false;
 		var escape = false;
+		var mcontrols = false;
 
-		accept = controls.ACCEPT;
-		right = controls.RIGHT_P;
-		left = controls.LEFT_P;
-		up = controls.UP_P;
-		down = controls.DOWN_P;
-		escape = controls.BACK;
-		any = FlxG.keys.justPressed.ANY || (gamepad != null ? gamepad.justPressed.ANY : false);
+		accept = controls.ACCEPT || _pad.buttonA.justPressed;
+		right = controls.RIGHT_P || _pad.buttonRight.justPressed;
+		left = controls.LEFT_P || _pad.buttonLeft.justPressed;
+		up = controls.UP_P || _pad.buttonUp.justPressed;
+		down = controls.DOWN_P || _pad.buttonDown.justPressed;
+		escape = controls.BACK || _pad.buttonB.justPressed;
+		mcontrols = _pad.buttonC.justPressed;
+		any = FlxG.keys.justPressed.ANY || justTouched || (gamepad != null ? gamepad.justPressed.ANY : false);
 
 		if (selectedCat != null && !isInCat) {
 			for (i in selectedCat.optionObjects.members) {
@@ -315,7 +331,7 @@ class OptionsMenu extends MusicBeatState {
 
 		try {
 			if (isInCat) {
-				descText.text = "Please select a category";
+				descText.text = "Please select a category or press C to change mobile controls";
 				if (right) {
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 					selectedCat.optionObjects.members[selectedOptionIndex].text = selectedOption.getValue();
@@ -349,6 +365,9 @@ class OptionsMenu extends MusicBeatState {
 
 				if (escape) {
 					FlxG.switchState(new MainMenuState());
+				}
+				if (mcontrols) {
+					FlxG.switchState(new CustomControlsState());
 				}
 			} else {
 				if (selectedOption != null) {
