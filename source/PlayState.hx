@@ -27,6 +27,9 @@ import lime.utils.Assets;
 #if windows
 import Discord.DiscordClient;
 #end
+#if mobile
+import mobilecontrols.Mobilecontrols;
+#end
 
 using StringTools;
 
@@ -149,6 +152,10 @@ class PlayState extends MusicBeatState {
 	var grpNoteSplashes:FlxTypedGroup<NoteSplash>;
 
 	public var hideGf:Bool = false; // write hideGf = true in stage to remove gf !
+
+	#if mobile
+	var mcontrols:Mobilecontrols; 
+	#end
 	
 	override public function create() {
 		instance = this;
@@ -344,6 +351,17 @@ class PlayState extends MusicBeatState {
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
 		FlxG.fixedTimestep = false;
+
+		// mobile controls here!!!
+		#if mobile
+		mcontrols = new Mobilecontrols();
+		var camcontrol = new FlxCamera();
+		FlxG.cameras.add(camcontrol);
+		camcontrol.bgColor.alpha = 0;
+		mcontrols.cameras = [camcontrol];
+
+		add(mcontrols);
+		#end
 
 		healthBarBG = new FlxSprite(0, FlxG.height * 0.9).loadGraphic(Paths.image('healthBar', 'shared'));
 		if (FlxG.save.data.downscroll)
@@ -926,7 +944,7 @@ class PlayState extends MusicBeatState {
 			scoreTxtChecked = true;
 		}
 
-		if (FlxG.keys.justPressed.ENTER && startedCountdown && canPause) {
+		if (FlxG.keys.justPressed.ENTER #if android || FlxG.android.justReleased.BACK #end && startedCountdown && canPause) {
 			persistentUpdate = false;
 			persistentDraw = true;
 			paused = true;
@@ -1500,9 +1518,9 @@ class PlayState extends MusicBeatState {
 	var leftHold:Bool = false;
 
 	private function keyShit():Void {
-		var holdArray:Array<Bool> = [controls.LEFT, controls.DOWN, controls.UP, controls.RIGHT];
-		var pressArray:Array<Bool> = [controls.LEFT_P, controls.DOWN_P, controls.UP_P, controls.RIGHT_P];
-		var releaseArray:Array<Bool> = [controls.LEFT_R, controls.DOWN_R, controls.UP_R, controls.RIGHT_R];
+		var holdArray:Array<Bool> = [controls.LEFT || mcontrols.LEFT, controls.DOWN || mcontrols.DOWN, controls.UP || mcontrols.UP, controls.RIGHT || mcontrols.RIGHT];
+		var pressArray:Array<Bool> = [controls.LEFT_P || mcontrols.LEFT_P, controls.DOWN_P || mcontrols.DOWN_P, controls.UP_P || mcontrols.UP_P, controls.RIGHT_P || mcontrols.RIGHT_P];
+		var releaseArray:Array<Bool> = [controls.LEFT_R || mcontrols.LEFT_R, controls.DOWN_R || mcontrols.DOWN_R, controls.UP_R || mcontrols.UP_R, controls.RIGHT_R || mcontrols.RIGHT_R];
 
 		if (FlxG.save.data.botplay) {
 			holdArray = [false, false, false, false];
