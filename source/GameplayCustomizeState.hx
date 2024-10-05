@@ -13,6 +13,7 @@ import sys.thread.Thread;
 import flixel.group.FlxGroup.FlxTypedGroup;
 import flixel.FlxSprite;
 import flixel.FlxG;
+import ui.FlxVirtualPad;
 
 class GameplayCustomizeState extends MusicBeatState {
 	var defaultX:Float = FlxG.width * 0.55 - 135;
@@ -34,6 +35,8 @@ class GameplayCustomizeState extends MusicBeatState {
 	var strumLineNotes:FlxTypedGroup<FlxSprite>;
 	var playerStrums:FlxTypedGroup<FlxSprite>;
 	private var camHUD:FlxCamera;
+
+	var _pad:FlxVirtualPad;
 
 	public override function create() {
 		Paths.clearStoredMemory();
@@ -131,6 +134,10 @@ class GameplayCustomizeState extends MusicBeatState {
 		sick.y = FlxG.save.data.changedHitY;
 
 		FlxG.mouse.visible = true;
+
+		_pad = new FlxVirtualPad(NONE, A);
+		_pad.alpha = 0.75;
+		this.add(_pad);
 	}
 
 	override function update(elapsed:Float) {
@@ -138,6 +145,8 @@ class GameplayCustomizeState extends MusicBeatState {
 			Conductor.songPosition = FlxG.sound.music.time;
 
 		super.update(elapsed);
+
+		var RESET = _pad.buttonA.justPressed;
 
 		FlxG.camera.zoom = FlxMath.lerp(0.9, FlxG.camera.zoom, 0.95);
 		camHUD.zoom = FlxMath.lerp(1, camHUD.zoom, 0.95);
@@ -158,7 +167,7 @@ class GameplayCustomizeState extends MusicBeatState {
 			FlxG.save.data.changedHit = true;
 		}
 
-		if (FlxG.keys.justPressed.R) {
+		if (FlxG.keys.justPressed.R || RESET) {
 			sick.x = defaultX;
 			sick.y = defaultY;
 			FlxG.save.data.changedHitX = sick.x;
@@ -166,7 +175,7 @@ class GameplayCustomizeState extends MusicBeatState {
 			FlxG.save.data.changedHit = false;
 		}
 
-		if (controls.BACK) {
+		if (controls.BACK #if android || FlxG.android.justReleased.BACK #end) {
 			FlxG.mouse.visible = false;
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			FlxG.switchState(new OptionsMenu());
