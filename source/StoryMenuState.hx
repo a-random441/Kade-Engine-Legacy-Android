@@ -15,6 +15,7 @@ import lime.net.curl.CURLCode;
 #if windows
 import Discord.DiscordClient;
 #end
+import ui.FlxVirtualPad;
 import flixel.graphics.FlxGraphic;
 
 using StringTools;
@@ -48,6 +49,8 @@ class StoryMenuState extends MusicBeatState {
 	var sprDifficulty:FlxSprite;
 	var leftArrow:FlxSprite;
 	var rightArrow:FlxSprite;
+
+	var _pad:FlxVirtualPad;
 
 	override function create() {
 		Paths.clearStoredMemory();
@@ -152,6 +155,10 @@ class StoryMenuState extends MusicBeatState {
 		changeDifficulty();
 		updateText();
 
+		_pad = new FlxVirtualPad(FULL, A_B);
+		_pad.alpha = 0.75;
+		this.add(_pad);
+
 		super.create();
 	}
 
@@ -169,35 +176,44 @@ class StoryMenuState extends MusicBeatState {
 			lock.y = grpWeekText.members[lock.ID].y;
 		});
 
+		var UP_P = _pad.buttonUp.justPressed;
+		var DOWN_P = _pad.buttonDown.justPressed;
+		var LEFT = _pad.buttonLeft.pressed;
+		var RIGHT = _pad.buttonRight.pressed;
+		var LEFT_P = _pad.buttonLeft.justPressed;
+		var RIGHT_P = _pad.buttonRight.justPressed;
+		var BACK = _pad.buttonB.justPressed #if android || FlxG.android.justReleased.BACK #end;
+		var ACCEPT = _pad.buttonA.justPressed;
+
 		if (!movedBack) {
 			if (!selectedWeek) {
-				if (controls.UP_P)
+				if (controls.UP_P || UP_P)
 					changeWeek(-1);
 
-				if (controls.DOWN_P)
+				if (controls.DOWN_P || DOWN_P)
 					changeWeek(1);
 
-				if (controls.RIGHT)
+				if (controls.RIGHT || RIGHT)
 					rightArrow.animation.play('press')
 				else
 					rightArrow.animation.play('idle');
 
-				if (controls.LEFT)
+				if (controls.LEFT || LEFT)
 					leftArrow.animation.play('press');
 				else
 					leftArrow.animation.play('idle');
 
-				if (controls.RIGHT_P)
+				if (controls.RIGHT_P || RIGHT_P)
 					changeDifficulty(1);
-				if (controls.LEFT_P)
+				if (controls.LEFT_P || LEFT_P)
 					changeDifficulty(-1);
 			}
 
-			if (controls.ACCEPT)
+			if (controls.ACCEPT || ACCEPT)
 				selectWeek();
 		}
 
-		if (controls.BACK && !movedBack && !selectedWeek) {
+		if (controls.BACK || BACK && !movedBack && !selectedWeek) {
 			FlxG.sound.play(Paths.sound('cancelMenu'));
 			movedBack = true;
 			FlxG.switchState(new MainMenuState());
