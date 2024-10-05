@@ -11,6 +11,8 @@ class GameOverSubstate extends MusicBeatSubstate {
 
 	var stageSuffix:String = "";
 
+	var justTouched:Bool = false;
+
 	public function new(x:Float, y:Float) {
 		var daBf:String = '';
 		switch (PlayState.SONG.player1) {
@@ -44,7 +46,15 @@ class GameOverSubstate extends MusicBeatSubstate {
 			endBullshit();
 		}
 
-		if (controls.BACK) {
+		for (touch in FlxG.touches.list)
+	                if (touch.justPressed)
+		                justTouched = true;
+		
+		if (justTouched) {
+			endBullshit();
+		}
+
+		if (controls.BACK #if android || FlxG.android.justReleased.BACK #end) {
 			FlxG.sound.music.stop();
 
 			if (PlayState.isStoryMode)
