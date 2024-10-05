@@ -67,7 +67,7 @@ class Mobilecontrols extends FlxSpriteGroup
 			case 4:
 				_hitbox = new Hitbox();
 				hitboxisenabled = true;
-				_hitbox.screenCenter(x); //good thing i know how to code
+				_hitbox.screenCenter(X); //good thing i know how to code
 				add(_hitbox);
 			default: //default (0)
 				_pad = new FlxVirtualPad(RIGHT_FULL, NONE);
