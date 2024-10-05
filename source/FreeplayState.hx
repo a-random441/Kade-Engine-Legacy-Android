@@ -10,6 +10,7 @@ import flixel.util.FlxColor;
 #if windows
 import Discord.DiscordClient;
 #end
+import ui.FlxVirtualPad;
 
 using StringTools;
 
@@ -33,6 +34,8 @@ class FreeplayState extends MusicBeatState {
 	private var curPlaying:Bool = false;
 
 	private var iconArray:Array<HealthIcon> = [];
+
+	var _pad:FlxVirtualPad;
 
 	override function create() {
 		Paths.clearStoredMemory();
@@ -94,6 +97,10 @@ class FreeplayState extends MusicBeatState {
 		selector.size = 40;
 		selector.text = ">";
 
+		_pad = new FlxVirtualPad(FULL, A_B);
+		_pad.alpha = 0.75;
+		this.add(_pad);
+
 		super.create();
 	}
 
@@ -128,9 +135,12 @@ class FreeplayState extends MusicBeatState {
 
 		scoreText.text = "PERSONAL BEST:" + lerpScore;
 
-		var upP = controls.UP_P;
-		var downP = controls.DOWN_P;
-		var accepted = controls.ACCEPT;
+		var upP = controls.UP_P || _pad.buttonUp.justPressed;
+		var downP = controls.DOWN_P || _pad.buttonDown.justPressed;
+		var LEFT_P = _pad.buttonLeft.justPressed;
+		var RIGHT_P = _pad.buttonRight.justPressed;
+		var BACK = _pad.buttonB.justPressed #if android || FlxG.android.justReleased.BACK #end;
+		var accepted = controls.ACCEPT || _pad.buttonA.justPressed;
 
 		if (upP) {
 			changeSelection(-1);
@@ -139,12 +149,12 @@ class FreeplayState extends MusicBeatState {
 			changeSelection(1);
 		}
 
-		if (controls.LEFT_P)
+		if (controls.LEFT_P || LEFT_P)
 			changeDiff(-1);
-		if (controls.RIGHT_P)
+		if (controls.RIGHT_P || RIGHT_P)
 			changeDiff(1);
 
-		if (controls.BACK) {
+		if (controls.BACK || BACK) {
 			FlxG.switchState(new MainMenuState());
 		}
 
